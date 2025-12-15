@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext, useContext, useState, ReactNode } from "react"
-import { LoginModal } from "./login-modal"
+import { LoginModalWrapper } from "./login-modal-wrapper"
 import { useUser } from "./user-provider"
 
 interface AuthContextType {
