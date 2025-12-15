@@ -40,7 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <AuthContext.Provider value={{ openLogin, closeLogin, requireAuth }}>
       {children}
-      <LoginModal 
+      <LoginModalWrapper 
         isOpen={isLoginOpen} 
         onClose={closeLogin}
         onSuccess={handleLoginSuccess}
