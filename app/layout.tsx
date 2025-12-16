@@ -41,15 +41,15 @@ const satoshi = localFont({
 
 export const metadata: Metadata = {
   title: {
-    default: "Dripzi — Contemporary Fashion",
-    template: "%s — Dripzi",
+    default: "Dripzi Store — Contemporary Fashion",
+    template: "%s — Dripzi Store",
   },
   description:
     "Contemporary fashion for the discerning individual. Explore curated collections that define modern luxury.",
   keywords: ["luxury fashion", "contemporary clothing", "editorial fashion", "designer apparel", "curated collections"],
-  authors: [{ name: "Dripzi" }],
-  creator: "Dripzi",
-  publisher: "Dripzi",
+  authors: [{ name: "Dripzi Store" }],
+  creator: "Dripzi Store",
+  publisher: "Dripzi Store",
   category: "fashion",
   classification: "E-commerce",
   formatDetection: {
@@ -62,17 +62,17 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: "Dripzi — Contemporary Fashion",
+    title: "Dripzi Store — Contemporary Fashion",
     description:
       "Contemporary fashion for the discerning individual. Explore curated collections that define modern luxury.",
     url: "https://dripzi.store",
-    siteName: "Dripzi",
+    siteName: "Dripzi Store",
     images: [
       {
         url: "/images/image.png",
         width: 1200,
         height: 630,
-        alt: "Dripzi — Contemporary Fashion Collection",
+        alt: "Dripzi Store — Contemporary Fashion Collection",
         type: "image/png",
       },
     ],
@@ -81,7 +81,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Dripzi — Contemporary Fashion",
+    title: "Dripzi Store — Contemporary Fashion",
     description:
       "Contemporary fashion for the discerning individual. Explore curated collections that define modern luxury.",
     images: ["/images/image.png"],
@@ -118,7 +118,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Dripzi",
+    title: "Dripzi Store",
   },
   generator: "v0.app",
 }
@@ -145,8 +145,8 @@ export default async function RootLayout({
           <meta name="mobile-web-app-capable" content="yes" />
           <meta name="apple-mobile-web-app-capable" content="yes" />
           <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-          <meta name="apple-mobile-web-app-title" content="Dripzi" />
-          <meta name="application-name" content="Dripzi" />
+          <meta name="apple-mobile-web-app-title" content="Dripzi Store" />
+          <meta name="application-name" content="Dripzi Store" />
           <meta name="msapplication-TileColor" content="#F7F6F3" />
           <link rel="preconnect" href="https://fonts.googleapis.com" />
           <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

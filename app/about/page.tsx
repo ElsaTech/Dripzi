@@ -11,7 +11,7 @@ export default async function AboutPage() {
 
       <main className="mx-auto max-w-4xl px-4 py-24 sm:px-6 lg:px-8">
         <div className="mb-16 text-center">
-          <h1 className="mb-4 font-serif text-5xl font-bold text-black md:text-6xl">About Dripzi</h1>
+          <h1 className="mb-4 font-serif text-5xl font-bold text-black md:text-6xl">About Dripzi Store</h1>
           <p className="text-xl text-gray-600">Fashion With No Rules</p>
         </div>
 
@@ -19,7 +19,7 @@ export default async function AboutPage() {
           <div>
             <h2 className="mb-4 font-serif text-3xl font-bold text-black">Our Story</h2>
             <p className="leading-relaxed text-gray-700">
-              Dripzi was born from a vision to redefine modern fashion. We believe in breaking boundaries and creating
+              Dripzi Store was born from a vision to redefine modern fashion. We believe in breaking boundaries and creating
               pieces that empower individuals to express their unique style without constraints.
             </p>
           </div>
@@ -44,7 +44,7 @@ export default async function AboutPage() {
           <div>
             <h2 className="mb-4 font-serif text-3xl font-bold text-black">Join the Movement</h2>
             <p className="leading-relaxed text-gray-700">
-              Dripzi is more than a brand—it's a community of individuals who dare to be different. Join us in
+              Dripzi Store is more than a brand—it's a community of individuals who dare to be different. Join us in
               redefining what fashion means in the modern era.
             </p>
           </div>
