@@ -129,11 +129,11 @@ export function Header({ user: initialUser }: HeaderProps) {
         />
 
         <div className="mx-auto max-w-7xl px-6 md:px-12">
-          <div className="flex h-24 md:h-28 items-center justify-between">
+          <div className="flex h-16 md:h-20 items-center justify-between">
             {/* Logo */}
             <Link
               href="/"
-              className="relative h-12 w-32 md:h-14 md:w-36 transition-opacity duration-700 hover:opacity-70"
+              className="relative h-10 w-28 md:h-12 md:w-32 transition-opacity duration-700 hover:opacity-70"
             >
               <Image src="/images/image.png" alt="Dripzi Store" fill className="object-contain" />
             </Link>
