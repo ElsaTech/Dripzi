@@ -1,8 +1,20 @@
 "use client"
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react"
-import { getCurrentUser } from "@/lib/actions/auth"
+import { createContext, useContext, ReactNode } from "react"
+import { useUser as useClerkUser } from "@clerk/nextjs"
 
+/**
+ * UserProvider Component
+ * 
+ * DEPRECATED: This component is kept for backwards compatibility
+ * 
+ * For new code, use Clerk's useUser hook directly:
+ * ```tsx
+ * import { useUser } from "@clerk/nextjs"
+ * ```
+ * 
+ * Clerk provides all user data client-side, so this wrapper is unnecessary
+ */
 interface User {
   id: string
   phone_number: string
@@ -22,35 +34,36 @@ interface UserContextType {
 const UserContext = createContext<UserContextType | null>(null)
 
 export function UserProvider({ children, initialUser }: { children: ReactNode, initialUser?: User | null }) {
-  const [user, setUser] = useState<User | null>(initialUser || null)
-  const [loading, setLoading] = useState(!initialUser)
+  const { user: clerkUser, isLoaded } = useClerkUser()
+
+  // Map Clerk user to legacy User format for backwards compatibility
+  const user: User | null = clerkUser
+    ? {
+        id: clerkUser.id,
+        phone_number: "", // Not available from Clerk
+        first_name: clerkUser.firstName || undefined,
+        last_name: clerkUser.lastName || undefined,
+        name: clerkUser.fullName || undefined,
+        email: clerkUser.emailAddresses?.[0]?.emailAddress || undefined,
+        is_admin: false, // Admin check requires server-side validation
+      }
+    : initialUser || null
 
   const refreshUser = async () => {
-    try {
-      setLoading(true)
-      const currentUser = await getCurrentUser()
-      setUser(currentUser)
-    } catch (error) {
-      console.error('Failed to refresh user:', error)
-      setUser(null)
-    } finally {
-      setLoading(false)
-    }
+    // Clerk automatically refreshes user data
+    // This is kept for backwards compatibility but does nothing
   }
 
-  useEffect(() => {
-    if (!initialUser) {
-      refreshUser()
-    }
-  }, [initialUser])
-
   return (
-    <UserContext.Provider value={{ user, loading, refreshUser }}>
+    <UserContext.Provider value={{ user, loading: !isLoaded, refreshUser }}>
       {children}
     </UserContext.Provider>
   )
 }
 
+/**
+ * @deprecated Use Clerk's useUser hook directly instead
+ */
 export function useUser() {
   const context = useContext(UserContext)
   if (!context) {

@@ -7,14 +7,19 @@ import { motion, AnimatePresence } from "framer-motion"
 import { X, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { useToast } from "@/hooks/use-toast"
 
 export function DiscountPopup() {
   const [isOpen, setIsOpen] = useState(false)
   const [email, setEmail] = useState("")
   const [dismissed, setDismissed] = useState(false)
+  const { toast } = useToast()
 
   useEffect(() => {
-    const hasSeenPopup = localStorage.getItem("dripzi_discount_seen")
+    // Show once per browser session to avoid annoying repeat popups
+    const hasSeenPopup = typeof window !== "undefined"
+      ? sessionStorage.getItem("dripzi_discount_seen")
+      : null
 
     if (!hasSeenPopup && !dismissed) {
       const timer = setTimeout(() => {
@@ -25,17 +30,25 @@ export function DiscountPopup() {
     }
   }, [dismissed])
 
-  const handleClose = () => {
+  const handleClose = (e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation()
+    }
     setIsOpen(false)
     setDismissed(true)
-    localStorage.setItem("dripzi_discount_seen", "true")
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("dripzi_discount_seen", "true")
+    }
   }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     // In production, save email to database
     console.log("Email subscribed:", email)
-    alert("Welcome! Your 15% discount code: DRIPZI15")
+    toast({
+      title: "Welcome to Dripzi",
+      description: "Your 15% discount code: DRIPZI15",
+    })
     handleClose()
   }
 
@@ -65,7 +78,9 @@ export function DiscountPopup() {
             >
               <button
                 onClick={handleClose}
-                className="absolute right-4 top-4 rounded-full p-2 transition-colors hover:bg-gray-100"
+                type="button"
+                className="absolute right-4 top-4 rounded-full p-2 transition-colors hover:bg-gray-100 z-10"
+                aria-label="Close popup"
               >
                 <X className="h-5 w-5" />
               </button>

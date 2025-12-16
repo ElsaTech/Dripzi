@@ -9,7 +9,7 @@ interface LoadingScreenProps {
   duration?: number
 }
 
-export function LoadingScreen({ isLoading: externalLoading, duration = 2000 }: LoadingScreenProps = {}) {
+export function LoadingScreen({ isLoading: externalLoading, duration = 1500 }: LoadingScreenProps = {}) {
   const [internalLoading, setInternalLoading] = useState(true)
   const isLoading = externalLoading !== undefined ? externalLoading : internalLoading
 

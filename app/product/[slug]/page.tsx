@@ -1,5 +1,3 @@
-import { Header } from "@/components/layout/header"
-import { Footer } from "@/components/layout/footer"
 import { ProductDetailClient } from "@/components/products/product-detail-client"
 import { StructuredData } from "@/components/seo/structured-data"
 import { getCurrentUser } from "@/lib/actions/auth"
@@ -82,7 +80,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white pt-10 md:pt-14">
       <StructuredData type="product" data={{
         name: product.name,
         description: product.description,
@@ -95,9 +93,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         }
       }} />
       <StructuredData type="breadcrumb" data={breadcrumbData} />
-      <Header user={user} />
       <ProductDetailClient product={product} />
-      <Footer />
     </div>
   )
 }

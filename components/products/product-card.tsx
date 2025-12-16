@@ -3,8 +3,6 @@
 import { motion } from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
-import { ShoppingBag } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import type { Product } from "@/lib/products"
 
 interface ProductCardProps {
@@ -16,46 +14,28 @@ export function ProductCard({ product }: ProductCardProps) {
   const hasDiscount = !!product.salePrice
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      viewport={{ once: true }}
-      whileHover={{ y: -8 }}
-      className="group"
-    >
+    <motion.div whileHover={{ y: -6 }} transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }} className="group">
       <Link href={`/product/${product.slug}`}>
-        <div className="neumorphic overflow-hidden rounded-3xl transition-all duration-300">
-          <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
+        <div className="space-y-6">
+          <div className="relative aspect-[3/4] overflow-hidden bg-muted/20">
             <Image
-              src={product.images[0] || "/placeholder.svg?height=600&width=450"}
+              src={product.images[0] || "/placeholder.svg?height=900&width=675&query=luxury fashion product editorial"}
               alt={product.name}
               fill
-              className="object-cover transition-transform duration-700 group-hover:scale-110"
+              className="object-cover transition-all duration-1000 ease-out group-hover:scale-[1.02]"
             />
-            {hasDiscount && (
-              <div className="absolute right-4 top-4 rounded-full bg-black px-4 py-2 text-sm font-bold text-white">
-                SALE
-              </div>
-            )}
           </div>
 
-          <div className="p-6">
-            <h3 className="mb-2 text-xl font-bold text-black">{product.name}</h3>
-            <p className="mb-4 line-clamp-2 text-sm leading-relaxed text-gray-600">{product.description}</p>
+          <div className="space-y-4">
+            <h3 className="editorial-heading text-2xl md:text-3xl text-foreground tracking-tight">{product.name}</h3>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                {hasDiscount && <span className="text-sm text-gray-400 line-through">${product.price.toFixed(2)}</span>}
-                <span className="text-2xl font-bold text-black">${displayPrice.toFixed(2)}</span>
-              </div>
-
-              <Button
-                size="icon"
-                className="neumorphic-sm h-12 w-12 rounded-full bg-black text-white transition-all hover:scale-110"
-              >
-                <ShoppingBag className="h-5 w-5" />
-              </Button>
+            <div className="flex items-baseline gap-3">
+              <span className="editorial-body text-sm text-muted-foreground/80">${displayPrice.toFixed(2)}</span>
+              {hasDiscount && (
+                <span className="editorial-body text-xs text-muted-foreground/40 line-through">
+                  ${product.price.toFixed(2)}
+                </span>
+              )}
             </div>
           </div>
         </div>

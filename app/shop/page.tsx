@@ -6,7 +6,7 @@ export default async function ShopPage() {
   const products = await getProducts()
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white pt-10 md:pt-14">
 
       <main className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
         <div className="mb-12">

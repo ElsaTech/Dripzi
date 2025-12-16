@@ -1,50 +1,38 @@
 "use client"
 
-import { createContext, useContext, useState, ReactNode } from "react"
-import { LoginModalWrapper } from "./login-modal-wrapper"
-import { useUser } from "./user-provider"
+import { createContext, useContext, useState, type ReactNode } from "react"
+import { LuxuryAuthModal } from "./luxury-auth-modal"
 
 interface AuthContextType {
   openLogin: () => void
-  closeLogin: () => void
-  requireAuth: (callback: () => void) => void
+  openSignup: () => void
+  closeAuth: () => void
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [isLoginOpen, setIsLoginOpen] = useState(false)
-  const [pendingCallback, setPendingCallback] = useState<(() => void) | null>(null)
-  const { refreshUser } = useUser()
+  const [isOpen, setIsOpen] = useState(false)
+  const [mode, setMode] = useState<"signin" | "signup">("signin")
 
-  const openLogin = () => setIsLoginOpen(true)
-  const closeLogin = () => {
-    setIsLoginOpen(false)
-    setPendingCallback(null)
+  const openLogin = () => {
+    setMode("signin")
+    setIsOpen(true)
   }
 
-  const requireAuth = (callback: () => void) => {
-    setPendingCallback(() => callback)
-    setIsLoginOpen(true)
+  const openSignup = () => {
+    setMode("signup")
+    setIsOpen(true)
   }
 
-  const handleLoginSuccess = async () => {
-    await refreshUser() // Refresh user state after login
-    if (pendingCallback) {
-      pendingCallback()
-      setPendingCallback(null)
-    }
-    setIsLoginOpen(false)
+  const closeAuth = () => {
+    setIsOpen(false)
   }
 
   return (
-    <AuthContext.Provider value={{ openLogin, closeLogin, requireAuth }}>
+    <AuthContext.Provider value={{ openLogin, openSignup, closeAuth }}>
       {children}
-      <LoginModalWrapper 
-        isOpen={isLoginOpen} 
-        onClose={closeLogin}
-        onSuccess={handleLoginSuccess}
-      />
+      <LuxuryAuthModal isOpen={isOpen} onClose={closeAuth} mode={mode} />
     </AuthContext.Provider>
   )
 }

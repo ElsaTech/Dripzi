@@ -1,38 +1,112 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { motion, useScroll, useTransform } from "framer-motion"
 import { ShoppingBag, Menu, X, User, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useAuth } from "@/components/auth/auth-provider"
-import { useUser } from "@/components/auth/user-provider"
+import { useUser } from "@clerk/nextjs"
+import { useClerk } from "@clerk/nextjs"
 import Image from "next/image"
-import { logout } from "@/lib/actions/auth"
 
 interface HeaderProps {
-  user?: any
+  user: {
+    id: string
+    email: string
+    firstName?: string | null
+    lastName?: string | null
+    fullName?: string | null
+    imageUrl?: string
+  } | null
 }
 
-export function Header({ user: serverUser }: HeaderProps) {
+export function Header({ user: initialUser }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { user: clerkUser } = useUser()
+  const { signOut } = useClerk()
   const { openLogin } = useAuth()
-  const { user, refreshUser } = useUser()
   const router = useRouter()
-  
-  // Use client-side user state if available, fallback to server user
-  const currentUser = user || serverUser
+  const pathname = usePathname()
+
+  const isHome = pathname === "/"
+  const [isAtTop, setIsAtTop] = useState(true)
+
+  const user = clerkUser
+    ? {
+        id: clerkUser.id,
+        email: clerkUser.emailAddresses?.[0]?.emailAddress || "",
+        firstName: clerkUser.firstName,
+        lastName: clerkUser.lastName,
+        fullName: clerkUser.fullName,
+        imageUrl: clerkUser.imageUrl,
+      }
+    : initialUser
+
   const { scrollY } = useScroll()
-  const headerBg = useTransform(scrollY, [0, 100], ["rgba(255, 255, 255, 0)", "rgba(255, 255, 255, 0.95)"])
-  const headerShadow = useTransform(scrollY, [0, 100], ["0px 0px 0px rgba(0,0,0,0)", "0px 8px 24px rgba(0,0,0,0.08)"])
+
+  const headerBg = useTransform(scrollY, [0, 150], ["rgba(247, 246, 243, 0)", "rgba(247, 246, 243, 0.95)"])
+  const borderOpacity = useTransform(scrollY, [0, 150], [0, 0.15])
+
+  useEffect(() => {
+    // Keep a simple scroll listener to decide when we're past the hero region on home.
+    const handleScroll = () => {
+      if (!isHome) return
+      setIsAtTop(window.scrollY < 80)
+    }
+
+    handleScroll()
+    window.addEventListener("scroll", handleScroll)
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll)
+    }
+  }, [isHome])
+
+  const primaryNavColor =
+    isHome && isAtTop ? "text-white hover:text-white/70" : "text-foreground hover:text-foreground/60"
+
+  const [isSigningOut, setIsSigningOut] = useState(false)
 
   const handleLogout = async () => {
-    await logout()
-    await refreshUser() // Update user state
-    router.push("/")
-    router.refresh()
+    // Prevent double execution - idempotent sign-out
+    if (isSigningOut) {
+      return
+    }
+
+    setIsSigningOut(true)
+    
+    try {
+      // Clerk sign-out - this is the critical operation
+      // Even if backend APIs fail, we must complete sign-out
+      await signOut()
+      
+      // Always redirect and refresh, regardless of any backend failures
+      // Sign-out must NEVER get stuck
+      router.push("/")
+      router.refresh()
+    } catch (error) {
+      // Log error but ALWAYS complete sign-out flow
+      console.error("Sign out error:", error)
+      
+      // Even on error, complete the sign-out flow
+      // User should be signed out from Clerk even if backend fails
+      try {
+        router.push("/")
+        router.refresh()
+      } catch (routerError) {
+        // If router fails, force page reload as last resort
+        window.location.href = "/"
+      }
+    } finally {
+      // Always reset state after a timeout to prevent permanent stuck state
+      // This is a safety net in case navigation doesn't happen
+      setTimeout(() => {
+        setIsSigningOut(false)
+      }, 3000)
+    }
   }
 
   return (
@@ -40,131 +114,164 @@ export function Header({ user: serverUser }: HeaderProps) {
       <motion.header
         style={{
           backgroundColor: headerBg,
-          boxShadow: headerShadow,
         }}
-        className="fixed left-0 right-0 top-0 z-40 border-b border-gray-200/20 backdrop-blur-lg transition-all duration-300"
+        className={`fixed left-0 right-0 top-0 z-40 transition-all duration-700 ${
+          isHome ? "backdrop-blur-md" : ""
+        }`}
       >
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-20 items-center justify-between">
-            <Link href="/" className="relative h-12 w-32">
+        {/* Subtle overlay on home hero to preserve readability without breaking the image */}
+        {isHome && isAtTop && (
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-transparent" />
+        )}
+        <motion.div
+          style={{ opacity: borderOpacity }}
+          className="absolute bottom-0 left-0 right-0 h-px bg-foreground"
+        />
+
+        <div className="mx-auto max-w-7xl px-6 md:px-12">
+          <div className="flex h-24 md:h-28 items-center justify-between">
+            {/* Logo */}
+            <Link
+              href="/"
+              className="relative h-12 w-32 md:h-14 md:w-36 transition-opacity duration-700 hover:opacity-70"
+            >
               <Image src="/images/image.png" alt="Dripzi Store" fill className="object-contain" />
             </Link>
 
-            <nav className="hidden items-center gap-8 md:flex">
-              <Link href="/shop" className="text-sm font-semibold text-black transition-colors hover:text-gray-600">
-                SHOP
+            <nav className="hidden items-center gap-12 md:flex">
+              <Link
+                href="/shop"
+                className={`luxury-subheading transition-all duration-700 relative group ${primaryNavColor}`}
+              >
+                Shop
+                <span className="absolute -bottom-1 left-0 w-0 h-px bg-foreground transition-all duration-700 group-hover:w-full" />
               </Link>
               <Link
                 href="/collections"
-                className="text-sm font-semibold text-black transition-colors hover:text-gray-600"
+                className={`luxury-subheading transition-all duration-700 relative group ${primaryNavColor}`}
               >
-                COLLECTIONS
+                Collections
+                <span className="absolute -bottom-1 left-0 w-0 h-px bg-foreground transition-all duration-700 group-hover:w-full" />
               </Link>
-              <Link href="/about" className="text-sm font-semibold text-black transition-colors hover:text-gray-600">
-                ABOUT
+              <Link
+                href="/about"
+                className={`luxury-subheading transition-all duration-700 relative group ${primaryNavColor}`}
+              >
+                About
+                <span className="absolute -bottom-1 left-0 w-0 h-px bg-foreground transition-all duration-700 group-hover:w-full" />
               </Link>
-              <Link href="/contact" className="text-sm font-semibold text-black transition-colors hover:text-gray-600">
-                CONTACT
+              <Link
+                href="/contact"
+                className={`luxury-subheading transition-all duration-700 relative group ${primaryNavColor}`}
+              >
+                Contact
+                <span className="absolute -bottom-1 left-0 w-0 h-px bg-foreground transition-all duration-700 group-hover:w-full" />
               </Link>
             </nav>
 
-            <div className="flex items-center gap-2 sm:gap-4">
+            <div className="flex items-center gap-6 md:gap-8">
               <Link href="/cart">
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="touch-target rounded-full"
-                  style={{
-                    boxShadow: "5px 5px 10px #d9d9d9, -5px -5px 10px #ffffff",
-                  }}
+                  className={`touch-target rounded-full hover:bg-transparent hover:opacity-60 transition-opacity duration-700 ${
+                    isHome && isAtTop ? "text-white" : ""
+                  }`}
                   aria-label="Shopping cart"
                 >
                   <ShoppingBag className="h-5 w-5" />
                 </Button>
               </Link>
 
-              {currentUser ? (
+              {user ? (
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="touch-target rounded-full"
-                      style={{
-                        boxShadow: "5px 5px 10px #d9d9d9, -5px -5px 10px #ffffff",
-                      }}
+                      className={`touch-target rounded-full hover:bg-transparent hover:opacity-60 transition-opacity duration-700 ${
+                        isHome && isAtTop ? "text-white" : ""
+                      }`}
                       aria-label="User menu"
                     >
-                      <User className="h-5 w-5" />
+                      {user.imageUrl ? (
+                        // Using next/image for better performance and layout stability
+                        <Image
+                          src={user.imageUrl || "/placeholder.svg"}
+                          alt={user.fullName || "User"}
+                          width={32}
+                          height={32}
+                          className="h-8 w-8 rounded-full object-cover"
+                        />
+                      ) : (
+                        <User className="h-5 w-5" />
+                      )}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-80 p-4">
-                    <div className="space-y-4">
+                  <PopoverContent className="w-80 p-6 bg-background border border-foreground/10">
+                    <div className="space-y-6">
                       {/* User Header */}
-                      <div className="border-b pb-4">
-                        <h3 className="text-lg font-semibold text-black">
-                          {currentUser.first_name && currentUser.last_name
-                            ? `${currentUser.first_name} ${currentUser.last_name}`
-                            : currentUser.name || "User"}
+                      <div className="border-b border-foreground/10 pb-4">
+                        <h3 className="font-serif text-2xl text-foreground tracking-tight">
+                          {user.fullName || "Account"}
                         </h3>
-                        <p className="text-sm text-gray-600">{currentUser.phone_number}</p>
+                        <p className="text-sm text-foreground/60 font-light mt-1">{user.email}</p>
                       </div>
 
                       {/* User Info */}
-                      <div className="space-y-3 text-sm">
-                        {currentUser.first_name && (
+                      <div className="space-y-4 text-sm">
+                        {user.firstName && (
                           <div>
-                            <p className="text-gray-500">First Name</p>
-                            <p className="text-black font-medium">{currentUser.first_name}</p>
+                            <p className="text-xs uppercase tracking-widest text-foreground/50 mb-1">First Name</p>
+                            <p className="text-foreground">{user.firstName}</p>
                           </div>
                         )}
-                        {currentUser.last_name && (
+                        {user.lastName && (
                           <div>
-                            <p className="text-gray-500">Last Name</p>
-                            <p className="text-black font-medium">{currentUser.last_name}</p>
-                          </div>
-                        )}
-                        {currentUser.email && (
-                          <div>
-                            <p className="text-gray-500">Email</p>
-                            <p className="text-black font-medium">{currentUser.email}</p>
+                            <p className="text-xs uppercase tracking-widest text-foreground/50 mb-1">Last Name</p>
+                            <p className="text-foreground">{user.lastName}</p>
                           </div>
                         )}
                         <div>
-                          <p className="text-gray-500">Phone</p>
-                          <p className="text-black font-medium">{currentUser.phone_number}</p>
+                          <p className="text-xs uppercase tracking-widest text-foreground/50 mb-1">Email</p>
+                          <p className="text-foreground">{user.email}</p>
                         </div>
                       </div>
 
                       {/* Logout Button */}
-                      <Button
+                      <button
                         onClick={handleLogout}
-                        className="w-full rounded-lg bg-red-500 hover:bg-red-600 text-white text-sm font-semibold flex items-center justify-center gap-2"
+                        disabled={isSigningOut}
+                        className="w-full border border-foreground/20 py-3 text-foreground text-sm uppercase tracking-widest transition-all duration-700 hover:bg-foreground hover:text-background disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                       >
                         <LogOut className="h-4 w-4" />
-                        Logout
-                      </Button>
+                        {isSigningOut ? "Signing out..." : "Sign out"}
+                      </button>
                     </div>
                   </PopoverContent>
                 </Popover>
               ) : (
-                <Button
+                <button
                   onClick={openLogin}
-                  className="hidden touch-target rounded-full bg-black px-6 py-2 text-sm font-extrabold text-white md:block"
-                  style={{
-                    boxShadow: "5px 5px 10px #d9d9d9, -5px -5px 10px #ffffff",
-                  }}
+                  className={`hidden md:block luxury-subheading transition-all duration-700 relative group ${
+                    isHome && isAtTop
+                      ? "text-white hover:text-white/70"
+                      : "text-foreground hover:text-foreground/60"
+                  }`}
                   aria-label="Sign in to your account"
                 >
                   Sign In
-                </Button>
+                  <span className="absolute -bottom-1 left-0 w-0 h-px bg-foreground transition-all duration-700 group-hover:w-full" />
+                </button>
               )}
 
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="touch-target rounded-full md:hidden"
+                className={`touch-target rounded-full md:hidden hover:bg-transparent hover:opacity-60 transition-opacity duration-700 ${
+                  isHome && isAtTop ? "text-white" : ""
+                }`}
                 aria-label={isMenuOpen ? "Close menu" : "Open menu"}
                 aria-expanded={isMenuOpen}
               >
@@ -180,39 +287,54 @@ export function Header({ user: serverUser }: HeaderProps) {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="border-t border-gray-200 bg-white md:hidden"
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            className="border-t border-border/20 bg-background md:hidden"
           >
-            <nav className="flex flex-col space-y-4 px-4 py-6" role="navigation" aria-label="Mobile navigation">
-              <Link href="/shop" className="touch-target text-base font-semibold text-black py-3" onClick={() => setIsMenuOpen(false)}>
-                SHOP
+            <nav className="flex flex-col space-y-2 px-6 py-8" role="navigation" aria-label="Mobile navigation">
+              <Link
+                href="/shop"
+                className="touch-target luxury-subheading text-foreground py-4 hover:text-foreground/60 transition-colors duration-700"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Shop
               </Link>
-              <Link href="/collections" className="touch-target text-base font-semibold text-black py-3" onClick={() => setIsMenuOpen(false)}>
-                COLLECTIONS
+              <Link
+                href="/collections"
+                className="touch-target luxury-subheading text-foreground py-4 hover:text-foreground/60 transition-colors duration-700"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Collections
               </Link>
-              <Link href="/about" className="touch-target text-base font-semibold text-black py-3" onClick={() => setIsMenuOpen(false)}>
-                ABOUT
+              <Link
+                href="/about"
+                className="touch-target luxury-subheading text-foreground py-4 hover:text-foreground/60 transition-colors duration-700"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                About
               </Link>
-              <Link href="/contact" className="touch-target text-base font-semibold text-black py-3" onClick={() => setIsMenuOpen(false)}>
-                CONTACT
+              <Link
+                href="/contact"
+                className="touch-target luxury-subheading text-foreground py-4 hover:text-foreground/60 transition-colors duration-700"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Contact
               </Link>
-              {!currentUser && (
-                <Button
+              {!user && (
+                <button
                   onClick={() => {
                     openLogin()
                     setIsMenuOpen(false)
                   }}
-                  className="touch-target rounded-full bg-black text-white mt-4"
+                  className="touch-target luxury-subheading text-foreground text-left py-4 mt-4 border-t border-border/20 hover:text-foreground/60 transition-colors duration-700"
                   aria-label="Sign in to your account"
                 >
                   Sign In
-                </Button>
+                </button>
               )}
             </nav>
           </motion.div>
         )}
       </motion.header>
-
-
     </>
   )
 }

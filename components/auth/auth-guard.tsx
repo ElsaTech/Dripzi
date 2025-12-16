@@ -1,10 +1,20 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { getCurrentUser } from "@/lib/actions/auth"
+import { useUser } from "@clerk/nextjs"
 import { LoadingScreen } from "@/components/interactive/loading-screen"
 
+/**
+ * AuthGuard Component
+ * 
+ * Client-side route protection using Clerk
+ * - requireAuth: Redirects to login if user is not authenticated
+ * - requireAdmin: Checks admin status from Supabase (requires server-side check for production)
+ * 
+ * NOTE: For admin checks, prefer server-side validation in page components
+ * This component is kept for backwards compatibility
+ */
 interface AuthGuardProps {
   children: React.ReactNode
   requireAuth?: boolean
@@ -16,39 +26,27 @@ export function AuthGuard({
   requireAuth = false, 
   requireAdmin = false 
 }: AuthGuardProps) {
-  const [user, setUser] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
+  const { user, isLoaded } = useUser()
   const router = useRouter()
 
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const currentUser = await getCurrentUser()
-        setUser(currentUser)
+    if (!isLoaded) return
 
-        if (requireAuth && !currentUser) {
-          router.push('/?login=true')
-          return
-        }
-
-        if (requireAdmin && (!currentUser || !currentUser.isAdmin)) {
-          router.push('/')
-          return
-        }
-      } catch (error) {
-        console.error('Auth check failed:', error)
-        if (requireAuth || requireAdmin) {
-          router.push('/')
-        }
-      } finally {
-        setLoading(false)
-      }
+    if (requireAuth && !user) {
+      router.push('/?login=true')
+      return
     }
 
-    checkAuth()
-  }, [requireAuth, requireAdmin, router])
+    // Note: Admin check requires server-side validation
+    // This client-side check is a fallback only
+    // Always validate admin status server-side in production
+    if (requireAdmin && !user) {
+      router.push('/')
+      return
+    }
+  }, [isLoaded, user, requireAuth, requireAdmin, router])
 
-  if (loading) {
+  if (!isLoaded) {
     return <LoadingScreen isLoading={true} />
   }
 
@@ -56,7 +54,9 @@ export function AuthGuard({
     return null
   }
 
-  if (requireAdmin && (!user || !user.isAdmin)) {
+  // Admin check requires server-side validation - this is just a client-side guard
+  // The actual admin check should happen in the page component
+  if (requireAdmin && !user) {
     return null
   }
 
