@@ -8,7 +8,7 @@ export function Footer() {
         <div className="grid gap-24 md:grid-cols-3">
           <div className="md:col-span-2">
             <div className="relative mb-8 h-10 w-28">
-              <Image src="/images/image.png" alt="Dripzi" fill className="object-contain brightness-20" />
+              <Image src="/images/image.png" alt="Dripzi Store" fill className="object-contain brightness-20" />
             </div>
             <p className="luxury-body text-background/60 max-w-md text-base">
               Contemporary fashion for the discerning individual
@@ -40,7 +40,7 @@ export function Footer() {
         </div>
 
         <div className="mt-24 pt-8 border-t border-background/10">
-          <p className="luxury-body text-sm text-background/40">© 2025 Dripzi</p>
+          <p className="luxury-body text-sm text-background/40">© 2025 Dripzi Store</p>
         </div>
       </div>
     </footer>

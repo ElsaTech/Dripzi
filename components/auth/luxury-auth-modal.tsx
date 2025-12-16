@@ -233,7 +233,7 @@ export function LuxuryAuthModal({ isOpen, onClose, mode = "signin" }: LuxuryAuth
                     {/* Header */}
                     <div className="mb-12 text-center">
                       <h2 className="font-serif text-4xl md:text-5xl tracking-tight text-foreground mb-3">
-                        {authMode === "signin" ? "Welcome back" : "Join Dripzi"}
+                        {authMode === "signin" ? "Welcome back" : "Join Dripzi Store"}
                       </h2>
                       <p className="text-foreground/60 font-light text-sm tracking-wide">
                         {authMode === "signin" ? "Access your account" : "Begin your journey with us"}
@@ -379,7 +379,7 @@ export function LuxuryAuthModal({ isOpen, onClose, mode = "signin" }: LuxuryAuth
                       >
                         {authMode === "signin" ? (
                           <>
-                            New to Dripzi? <span className="border-b border-foreground/40">Create an account</span>
+                            New to Dripzi Store? <span className="border-b border-foreground/40">Create an account</span>
                           </>
                         ) : (
                           <>

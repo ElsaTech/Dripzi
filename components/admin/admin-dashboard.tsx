@@ -41,7 +41,7 @@ export function AdminDashboard({ products, orders }: AdminDashboardProps) {
       <div className="mb-12 flex items-center justify-between">
         <div>
           <h1 className="mb-2 font-serif text-5xl font-bold text-black">Admin Dashboard</h1>
-          <p className="text-lg text-gray-600">Manage your Dripzi store</p>
+          <p className="text-lg text-gray-600">Manage your Dripzi Store</p>
         </div>
       </div>
 

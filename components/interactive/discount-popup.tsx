@@ -46,7 +46,7 @@ export function DiscountPopup() {
     // In production, save email to database
     console.log("Email subscribed:", email)
     toast({
-      title: "Welcome to Dripzi",
+      title: "Welcome to Dripzi Store",
       description: "Your 15% discount code: DRIPZI15",
     })
     handleClose()
@@ -95,7 +95,7 @@ export function DiscountPopup() {
                   <Sparkles className="h-8 w-8 text-white" />
                 </motion.div>
 
-                <h2 className="mb-2 font-serif text-3xl font-bold text-black">Welcome to Dripzi!</h2>
+                <h2 className="mb-2 font-serif text-3xl font-bold text-black">Welcome to Dripzi Store!</h2>
                 <p className="mb-6 text-lg text-gray-600">Get 15% off your first order</p>
 
                 <form onSubmit={handleSubmit} className="space-y-4">

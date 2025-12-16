@@ -158,7 +158,7 @@ export function LoginModal({ isOpen, onClose, onSuccess }: LoginModalProps) {
               </button>
 
               <div className="mb-6 text-center">
-                <h2 className="text-3xl font-bold text-black">Welcome to Dripzi</h2>
+                <h2 className="text-3xl font-bold text-black">Welcome to Dripzi Store</h2>
                 <p className="mt-2 text-gray-600">Sign in with your phone number</p>
               </div>
 

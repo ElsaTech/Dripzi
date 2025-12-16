@@ -37,7 +37,7 @@ export function InteractiveGrid() {
           viewport={{ once: true }}
           className="mb-16 text-center"
         >
-          <h2 className="font-serif text-5xl font-bold text-black md:text-6xl">Why Choose Dripzi</h2>
+          <h2 className="font-serif text-5xl font-bold text-black md:text-6xl">Why Choose Dripzi Store</h2>
         </motion.div>
 
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
