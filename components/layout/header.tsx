@@ -121,7 +121,7 @@ export function Header({ user: initialUser }: HeaderProps) {
       >
         {/* Subtle overlay on home hero to preserve readability without breaking the image */}
         {isHome && isAtTop && (
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-transparent" />
+          <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-black/60 via-black/40 to-transparent" />
         )}
         <motion.div
           style={{ opacity: borderOpacity }}
@@ -129,11 +129,11 @@ export function Header({ user: initialUser }: HeaderProps) {
         />
 
         <div className="mx-auto max-w-7xl px-6 md:px-12">
-          <div className="flex h-16 md:h-20 items-center justify-between">
+          <div className="flex h-14 md:h-16 items-center justify-between">
             {/* Logo */}
             <Link
               href="/"
-              className="relative h-10 w-28 md:h-12 md:w-32 transition-opacity duration-700 hover:opacity-70"
+              className="relative h-9 w-24 md:h-10 md:w-28 transition-opacity duration-700 hover:opacity-70"
             >
               <Image src="/images/image.png" alt="Dripzi Store" fill className="object-contain" />
             </Link>
