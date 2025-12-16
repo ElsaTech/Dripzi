@@ -160,7 +160,7 @@ export default async function RootLayout({
           <AuthProvider>
             <Header user={initialUser} />
             {/* Offset main content so it isn't hidden behind the fixed header */}
-            <div className="pt-32 md:pt-36">
+            <div className="pt-14 md:pt-16">
               <PageTransition>{children}</PageTransition>
               <Footer />
             </div>
