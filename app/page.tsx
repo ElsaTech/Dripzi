@@ -9,7 +9,6 @@ import { FloatingCartButton } from "@/components/interactive/floating-cart-butto
 import { ScrollToTop } from "@/components/interactive/scroll-to-top"
 import { LoadingScreen } from "@/components/interactive/loading-screen"
 import { AnnouncementBar } from "@/components/interactive/announcement-bar"
-import { AnimatedTag } from "@/components/interactive/animated-tag"
 import { getProducts } from "@/lib/products"
 
 export default async function Home() {
@@ -20,7 +19,7 @@ export default async function Home() {
     <>
       <LoadingScreen />
       <SmoothScrollProvider>
-        <div className="min-h-screen">
+        <div className="min-h-screen bg-background">
           <AnnouncementBar />
           <main>
             <HeroSection />
@@ -29,12 +28,9 @@ export default async function Home() {
             <ParallaxSection />
             <InteractiveGrid />
           </main>
-          <DiscountPopup />
+          {/* <DiscountPopup /> */}
           <FloatingCartButton />
           <ScrollToTop />
-          
-          {/* Animated String Tag - configurable position */}
-          <AnimatedTag />
         </div>
       </SmoothScrollProvider>
     </>

@@ -3,17 +3,17 @@ import "server-only"
 /**
  * Shopify Storefront API Client
  * Supports both @shopify/storefront-api-client and direct fetch
- * 
+ *
  * Optimized for Shopify Headless Channel with flexible token support
  * - Attempts official @shopify/storefront-api-client first
  * - Falls back to direct fetch for token formats official client doesn't support
- * 
+ *
  * Environment Variables:
  * - SHOPIFY_STOREFRONT_ACCESS_TOKEN_PRIVATE: Private token for server operations
  * - SHOPIFY_STOREFRONT_ACCESS_TOKEN_PUBLIC: Public token for client operations
  * - SHOPIFY_STOREFRONT_ACCESS_TOKEN: Fallback generic token
  * - SHOPIFY_STORE_DOMAIN: Your Shopify domain
- * 
+ *
  * Server-side only - token never exposed to client
  */
 
@@ -38,7 +38,7 @@ let clientPublicUseFetch = false
 /**
  * Get or create a Storefront API client instance
  */
-function getStorefrontClient(usePublicToken: boolean = false) {
+function getStorefrontClient(usePublicToken = false) {
   // Return cached client if available
   if (usePublicToken && clientPublic) {
     return { client: clientPublic, useFetch: clientPublicUseFetch }
@@ -61,14 +61,15 @@ function getStorefrontClient(usePublicToken: boolean = false) {
 
   const shopDomain = process.env.SHOPIFY_STORE_DOMAIN
 
-  if (!accessToken) {
-    throw new Error(
-      `Shopify Storefront token not found. Set ${tokenEnvKey} or SHOPIFY_STOREFRONT_ACCESS_TOKEN in environment`
+  if (!accessToken || !shopDomain) {
+    console.warn(
+      `Shopify credentials not configured. Set ${tokenEnvKey} or SHOPIFY_STOREFRONT_ACCESS_TOKEN and SHOPIFY_STORE_DOMAIN in environment variables`,
     )
-  }
-
-  if (!shopDomain) {
-    throw new Error("SHOPIFY_STORE_DOMAIN is not set in environment variables")
+    return {
+      client: null,
+      useFetch: false,
+      missingCredentials: true,
+    }
   }
 
   // Remove protocol if present
@@ -99,7 +100,7 @@ function getStorefrontClient(usePublicToken: boolean = false) {
     clientPrivateUseFetch = useFetch
   }
 
-  return { client: newClient, useFetch }
+  return { client: newClient, useFetch, missingCredentials: false }
 }
 
 /**
@@ -109,27 +110,31 @@ async function storefrontFetchDirect<T>(
   domain: string,
   token: string,
   query: string,
-  variables?: Record<string, unknown>
+  variables?: Record<string, unknown>,
 ): Promise<ShopifyStorefrontResponse<T>> {
-  const response = await fetch(
-    `https://${domain}/api/${STOREFRONT_API_VERSION}/graphql.json`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Shopify-Storefront-Access-Token": token,
-      },
-      body: JSON.stringify({ query, variables }),
-    }
-  )
+  const response = await fetch(`https://${domain}/api/${STOREFRONT_API_VERSION}/graphql.json`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Shopify-Storefront-Access-Token": token,
+    },
+    body: JSON.stringify({ query, variables }),
+    next: { revalidate: 60 },
+  })
 
   if (!response.ok) {
+    const bodyText = await response.text()
+    console.error(`[v0] Shopify API error response:`, {
+      status: response.status,
+      statusText: response.statusText,
+      body: bodyText,
+    })
     throw new Error(`Shopify API error: ${response.status} ${response.statusText}`)
   }
 
   const result = await response.json()
   if (result.errors) {
-    console.error("Shopify GraphQL errors:", result.errors)
+    console.error("[v0] Shopify GraphQL errors:", result.errors)
   }
 
   return result
@@ -150,16 +155,16 @@ export async function storefrontFetch<T>({
   usePublicToken?: boolean
 }): Promise<ShopifyStorefrontResponse<T>> {
   try {
-    const { client, useFetch } = getStorefrontClient(usePublicToken)
+    const { client, useFetch, missingCredentials } = getStorefrontClient(usePublicToken)
+
+    if (missingCredentials || !client) {
+      console.warn("[v0] Shopify API call skipped - credentials not configured")
+      return { data: undefined, errors: [] }
+    }
 
     if (useFetch) {
       // Use direct fetch for token formats official client doesn't support
-      return await storefrontFetchDirect<T>(
-        client.domain,
-        client.token,
-        query,
-        variables
-      )
+      return await storefrontFetchDirect<T>(client.domain, client.token, query, variables)
     } else {
       // Use official @shopify/storefront-api-client
       return await client.request<T>(query, { variables })
@@ -167,14 +172,18 @@ export async function storefrontFetch<T>({
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown Shopify API error"
     const tokenType = usePublicToken ? "public" : "private"
-    console.error(`Shopify Storefront API error (${tokenType} token):`, errorMessage)
+    console.error(`[v0] Shopify Storefront API error (${tokenType} token):`, errorMessage)
 
     if (
       errorMessage.includes("401") ||
       errorMessage.includes("Unauthorized") ||
       errorMessage.includes("access token")
     ) {
-      throw new Error(`Unauthorized: Invalid or expired Storefront API ${tokenType} token`)
+      console.error(`[v0] Authentication failed. Please verify your Shopify credentials in the Vars section.`)
+      return {
+        data: undefined,
+        errors: [{ message: `Unauthorized: Invalid or expired Storefront API ${tokenType} token` }],
+      }
     }
 
     throw error

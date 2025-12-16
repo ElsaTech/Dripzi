@@ -3,27 +3,28 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Luxury color palette - ivory background, deep charcoal text, champagne gold accent */
 :root {
-  --background: oklch(0.96 0 0);
-  --foreground: oklch(0.1 0 0);
-  --card: oklch(0.98 0 0);
-  --card-foreground: oklch(0.1 0 0);
-  --popover: oklch(0.98 0 0);
-  --popover-foreground: oklch(0.1 0 0);
-  --primary: oklch(0.1 0 0);
-  --primary-foreground: oklch(0.98 0 0);
-  --secondary: oklch(0.94 0 0);
-  --secondary-foreground: oklch(0.1 0 0);
-  --muted: oklch(0.92 0 0);
-  --muted-foreground: oklch(0.5 0 0);
-  --accent: oklch(0.88 0 0);
-  --accent-foreground: oklch(0.1 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.88 0 0);
-  --input: oklch(0.94 0 0);
-  --ring: oklch(0.7 0 0);
-  --radius: 1.25rem;
+  --background: #f7f6f3;
+  --foreground: #1a1a1a;
+  --card: #fdfdfb;
+  --card-foreground: #1a1a1a;
+  --popover: #ffffff;
+  --popover-foreground: #1a1a1a;
+  --primary: #1a1a1a;
+  --primary-foreground: #f7f6f3;
+  --secondary: #f0efe9;
+  --secondary-foreground: #1a1a1a;
+  --muted: #e8e7e0;
+  --muted-foreground: #6b6b6b;
+  --accent: #c9a96e;
+  --accent-foreground: #1a1a1a;
+  --destructive: #991b1b;
+  --destructive-foreground: #f7f6f3;
+  --border: #d4d3cc;
+  --input: #e8e7e0;
+  --ring: #c9a96e;
+  --radius: 0px;
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -40,25 +41,25 @@
 }
 
 .dark {
-  --background: oklch(0.1 0 0);
-  --foreground: oklch(0.98 0 0);
-  --card: oklch(0.15 0 0);
-  --card-foreground: oklch(0.98 0 0);
-  --popover: oklch(0.12 0 0);
-  --popover-foreground: oklch(0.98 0 0);
-  --primary: oklch(0.98 0 0);
-  --primary-foreground: oklch(0.1 0 0);
-  --secondary: oklch(0.2 0 0);
-  --secondary-foreground: oklch(0.98 0 0);
-  --muted: oklch(0.2 0 0);
-  --muted-foreground: oklch(0.6 0 0);
-  --accent: oklch(0.25 0 0);
-  --accent-foreground: oklch(0.98 0 0);
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.25 0 0);
-  --input: oklch(0.2 0 0);
-  --ring: oklch(0.4 0 0);
+  --background: #1a1a1a;
+  --foreground: #f7f6f3;
+  --card: #222222;
+  --card-foreground: #f7f6f3;
+  --popover: #2a2a2a;
+  --popover-foreground: #f7f6f3;
+  --primary: #f7f6f3;
+  --primary-foreground: #1a1a1a;
+  --secondary: #2a2a2a;
+  --secondary-foreground: #f7f6f3;
+  --muted: #3a3a3a;
+  --muted-foreground: #a0a0a0;
+  --accent: #c9a96e;
+  --accent-foreground: #f7f6f3;
+  --destructive: #dc2626;
+  --destructive-foreground: #f7f6f3;
+  --border: #3a3a3a;
+  --input: #2a2a2a;
+  --ring: #c9a96e;
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
@@ -75,9 +76,8 @@
 }
 
 @theme inline {
-  /* optional: --font-sans, --font-serif, --font-mono if they are applied in the layout.tsx */
-  --font-sans: "Inter", var(--font-fallback-sans);
-  --font-serif: "Playfair Display", var(--font-fallback-serif);
+  --font-sans: "Satoshi", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Cormorant Garamond", ui-serif, Georgia, serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -118,76 +118,129 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    border-color: var(--color-border);
+    outline-color: color-mix(in srgb, var(--color-ring) 50%, transparent);
   }
   body {
-    @apply bg-background text-foreground;
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-weight: 300;
+    letter-spacing: 0.01em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "kern" 1, "liga" 1;
+  }
+  img {
+    max-width: 100%;
+    height: auto;
   }
 }
 
-/* Mobile-first responsive design */
-@media (max-width: 640px) {
-  .container {
-    padding-left: 1rem;
-    padding-right: 1rem;
+/* Editorial typography - plain CSS classes without @utility or @layer */
+.editorial-display {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  letter-spacing: -0.03em;
+  line-height: 0.88;
+  text-wrap: balance;
+}
+
+.editorial-heading {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  text-wrap: balance;
+}
+
+.editorial-subheading {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+}
+
+.editorial-body {
+  font-family: var(--font-sans);
+  font-weight: 300;
+  letter-spacing: 0.01em;
+  line-height: 1.75;
+}
+
+.luxury-subheading {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+}
+
+.luxury-body {
+  font-family: var(--font-sans);
+  font-weight: 300;
+  letter-spacing: 0.01em;
+  line-height: 1.75;
+}
+
+/* Luxury motion - slow, confident, expensive feel (600-900ms) */
+@keyframes luxuryFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
-  
-  .text-responsive {
-    font-size: clamp(1.5rem, 4vw, 3rem);
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-/* Touch-friendly interactive elements */
+@keyframes luxuryReveal {
+  from {
+    opacity: 0;
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+.animate-luxury-fade {
+  animation: luxuryFadeIn 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.animate-luxury-reveal {
+  animation: luxuryReveal 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/* Touch targets for mobile luxury experience */
 @media (hover: none) and (pointer: coarse) {
-  button, .btn, a {
+  button,
+  .btn,
+  a {
     min-height: 44px;
     min-width: 44px;
   }
 }
 
-/* Improve text readability */
-body {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-}
-
-/* Optimize images for mobile */
-img {
-  max-width: 100%;
-  height: auto;
-}
-
-/* Focus indicators for accessibility */
-:focus-visible {
-  outline: 2px solid #000;
-  outline-offset: 2px;
-}
-
-/* Custom neumorphic utilities - Mobile optimized */
-.neumorphic {
-  box-shadow: 20px 20px 60px #d1d1d1, -20px -20px 60px #ffffff;
-}
-
-.neumorphic-inset {
-  box-shadow: inset 8px 8px 16px #d1d1d1, inset -8px -8px 16px #ffffff;
-}
-
-.neumorphic-sm {
-  box-shadow: 5px 5px 10px #d9d9d9, -5px -5px 10px #ffffff;
-}
-
-/* Mobile-specific neumorphic adjustments */
-@media (max-width: 768px) {
-  .neumorphic {
-    box-shadow: 10px 10px 30px #d1d1d1, -10px -10px 30px #ffffff;
+/* Responsive editorial typography */
+@media (max-width: 640px) {
+  .container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
   }
-  
-  .neumorphic-sm {
-    box-shadow: 3px 3px 6px #d9d9d9, -3px -3px 6px #ffffff;
+  .editorial-display {
+    font-size: clamp(3.5rem, 12vw, 10rem);
   }
-}
-
-.text-balance {
-  text-wrap: balance;
 }

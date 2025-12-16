@@ -11,18 +11,17 @@ import { storefrontFetch } from "./shopify"
  * Wrapper for storefrontFetch that handles the official client's response format
  * The official client returns { data, errors } or throws
  */
-async function fetchFromShopify<T>(
-  query: string,
-  variables?: Record<string, unknown>,
-): Promise<T> {
+async function fetchFromShopify<T>(query: string, variables?: Record<string, unknown>): Promise<T> {
   const response = await storefrontFetch<T>({ query, variables })
 
   if (response.errors && response.errors.length > 0) {
     const errorMsg = response.errors.map((e) => e.message).join("; ")
+    console.error("[v0] Shopify GraphQL Error:", errorMsg)
     throw new Error(`Shopify GraphQL Error: ${errorMsg}`)
   }
 
   if (!response.data) {
+    console.warn("[v0] No Shopify data returned - returning empty result")
     throw new Error("No data returned from Shopify API")
   }
 
@@ -193,9 +192,9 @@ function transformShopifyProduct(shopifyProduct: ShopifyProduct): Product {
   const { sizes, colors } = extractSizesAndColors(variants)
 
   // Find min price and compareAtPrice for sale price
-  const prices = variants.map((v) => parseFloat(v.price.amount))
+  const prices = variants.map((v) => Number.parseFloat(v.price.amount))
   const comparePrices = variants
-    .map((v) => (v.compareAtPrice ? parseFloat(v.compareAtPrice.amount) : null))
+    .map((v) => (v.compareAtPrice ? Number.parseFloat(v.compareAtPrice.amount) : null))
     .filter((p): p is number => p !== null)
 
   const minPrice = Math.min(...prices)
@@ -216,9 +215,7 @@ function transformShopifyProduct(shopifyProduct: ShopifyProduct): Product {
 
   // Map variants with size/color info - only use real Shopify variants
   const mappedVariants = variants.map((variant) => {
-    const sizeOption = variant.selectedOptions.find(
-      (opt) => opt.name.toLowerCase() === "size",
-    )?.value
+    const sizeOption = variant.selectedOptions.find((opt) => opt.name.toLowerCase() === "size")?.value
     const colorOption = variant.selectedOptions.find(
       (opt) => opt.name.toLowerCase() === "color" || opt.name.toLowerCase() === "colour",
     )?.value
@@ -227,12 +224,14 @@ function transformShopifyProduct(shopifyProduct: ShopifyProduct): Product {
       id: variant.id,
       size: sizeOption,
       color: colorOption,
-      price: parseFloat(variant.price.amount),
+      price: Number.parseFloat(variant.price.amount),
       available: variant.availableForSale,
     }
   })
 
-  console.log(`[Product: ${shopifyProduct.title}] Total variants: ${variants.length} | Available: ${availableCount} | Mapped variants: ${mappedVariants.length}`)
+  console.log(
+    `[Product: ${shopifyProduct.title}] Total variants: ${variants.length} | Available: ${availableCount} | Mapped variants: ${mappedVariants.length}`,
+  )
 
   return {
     id: shopifyProduct.id,
@@ -256,168 +255,179 @@ function transformShopifyProduct(shopifyProduct: ShopifyProduct): Product {
  * Fetches all products (with optional category and featured filters)
  */
 export async function getProducts(category?: string, featured?: boolean): Promise<Product[]> {
-  let query = `query GetProducts($first: Int!) {
-    products(first: $first) {
-      edges {
-        node {
-          id
-          handle
-          title
-          description
-          descriptionHtml
-          productType
-          tags
-          priceRange {
-            minVariantPrice {
-              amount
-              currencyCode
-            }
-            maxVariantPrice {
-              amount
-              currencyCode
-            }
-          }
-          images(first: 10) {
-            edges {
-              node {
-                url
-                altText
+  try {
+    const query = `query GetProducts($first: Int!) {
+      products(first: $first) {
+        edges {
+          node {
+            id
+            handle
+            title
+            description
+            descriptionHtml
+            productType
+            tags
+            priceRange {
+              minVariantPrice {
+                amount
+                currencyCode
+              }
+              maxVariantPrice {
+                amount
+                currencyCode
               }
             }
-          }
-          variants(first: 100) {
-            edges {
-              node {
-                id
-                title
-                availableForSale
-                price {
-                  amount
-                  currencyCode
-                }
-                compareAtPrice {
-                  amount
-                  currencyCode
-                }
-                selectedOptions {
-                  name
-                  value
-                }
-                image {
+            images(first: 10) {
+              edges {
+                node {
                   url
                   altText
                 }
               }
             }
-          }
-          collections(first: 5) {
-            edges {
-              node {
-                handle
-                title
+            variants(first: 100) {
+              edges {
+                node {
+                  id
+                  title
+                  availableForSale
+                  price {
+                    amount
+                    currencyCode
+                  }
+                  compareAtPrice {
+                    amount
+                    currencyCode
+                  }
+                  selectedOptions {
+                    name
+                    value
+                  }
+                  image {
+                    url
+                    altText
+                  }
+                }
+              }
+            }
+            collections(first: 5) {
+              edges {
+                node {
+                  handle
+                  title
+                }
               }
             }
           }
         }
+        pageInfo {
+          hasNextPage
+          hasPreviousPage
+        }
       }
-      pageInfo {
-        hasNextPage
-        hasPreviousPage
-      }
+    }`
+
+    const data = await fetchFromShopify<ShopifyProductsResponse>(query, { first: 250 })
+
+    let products = data.products.edges.map((edge) => transformShopifyProduct(edge.node))
+
+    // Filter by category if provided
+    if (category) {
+      products = products.filter((p) => p.category === category)
     }
-  }`
 
-  const data = await fetchFromShopify<ShopifyProductsResponse>(query, { first: 250 })
+    // Filter by featured if provided
+    if (featured) {
+      products = products.filter((p) => p.featured)
+    }
 
-  let products = data.products.edges.map((edge) => transformShopifyProduct(edge.node))
-
-  // Filter by category if provided
-  if (category) {
-    products = products.filter((p) => p.category === category)
+    return products
+  } catch (error) {
+    console.error("[v0] Error fetching products from Shopify:", error)
+    // Return empty array if Shopify is not configured or has errors
+    return []
   }
-
-  // Filter by featured if provided
-  if (featured) {
-    products = products.filter((p) => p.featured)
-  }
-
-  return products
 }
 
 /**
  * Fetches a product by handle (slug)
  */
 export async function getProductByHandle(handle: string): Promise<Product | null> {
-  const query = `query GetProductByHandle($handle: String!) {
-    product(handle: $handle) {
-      id
-      handle
-      title
-      description
-      descriptionHtml
-      productType
-      tags
-      priceRange {
-        minVariantPrice {
-          amount
-          currencyCode
-        }
-        maxVariantPrice {
-          amount
-          currencyCode
-        }
-      }
-      images(first: 10) {
-        edges {
-          node {
-            url
-            altText
+  try {
+    const query = `query GetProductByHandle($handle: String!) {
+      product(handle: $handle) {
+        id
+        handle
+        title
+        description
+        descriptionHtml
+        productType
+        tags
+        priceRange {
+          minVariantPrice {
+            amount
+            currencyCode
+          }
+          maxVariantPrice {
+            amount
+            currencyCode
           }
         }
-      }
-      variants(first: 100) {
-        edges {
-          node {
-            id
-            title
-            availableForSale
-            price {
-              amount
-              currencyCode
-            }
-            compareAtPrice {
-              amount
-              currencyCode
-            }
-            selectedOptions {
-              name
-              value
-            }
-            image {
+        images(first: 10) {
+          edges {
+            node {
               url
               altText
             }
           }
         }
-      }
-      collections(first: 5) {
-        edges {
-          node {
-            handle
-            title
+        variants(first: 100) {
+          edges {
+            node {
+              id
+              title
+              availableForSale
+              price {
+                amount
+                currencyCode
+              }
+              compareAtPrice {
+                amount
+                currencyCode
+              }
+              selectedOptions {
+                name
+                value
+              }
+              image {
+                url
+                altText
+              }
+            }
+          }
+        }
+        collections(first: 5) {
+          edges {
+            node {
+              handle
+              title
+            }
           }
         }
       }
+    }`
+
+    const data = await fetchFromShopify<ShopifyProductResponse>(query, { handle })
+
+    if (!data.product) {
+      return null
     }
-  }`
 
-  const data = await fetchFromShopify<ShopifyProductResponse>(query, { handle })
-
-  if (!data.product) {
+    return transformShopifyProduct(data.product)
+  } catch (error) {
+    console.error(`[v0] Error fetching product ${handle} from Shopify:`, error)
     return null
   }
-
-  return transformShopifyProduct(data.product)
 }
 
 /**
