@@ -140,8 +140,8 @@ export default async function RootLayout({
             name="viewport"
             content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes, viewport-fit=cover"
           />
-          <meta name="theme-color" content="#F7F6F3" media="(prefers-color-scheme: light)" />
-          <meta name="theme-color" content="#1A1A1A" media="(prefers-color-scheme: dark)" />
+          <meta name="theme-color" content="#FAF9F6" media="(prefers-color-scheme: light)" />
+          <meta name="theme-color" content="#1C1C1C" media="(prefers-color-scheme: dark)" />
           <meta name="mobile-web-app-capable" content="yes" />
           <meta name="apple-mobile-web-app-capable" content="yes" />
           <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />

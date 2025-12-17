@@ -1,75 +1,142 @@
-"use server"
+"use client"
 
-import { Header } from "@/components/layout/header"
-import { Footer } from "@/components/layout/footer"
-import { getCurrentUser } from "@/lib/actions/auth"
+import { motion } from "framer-motion"
+import Image from "next/image"
 import Link from "next/link"
 
 const collections = [
   {
-    name: "2025 Collection",
-    description:
-      "Experience the intersection of bold Bauhaus design principles and sophisticated neumorphic interfaces.",
-    slug: "2025-collection",
-    image: "/fashion-model-black-and-white-minimalist.jpg",
-  },
-  {
-    name: "Winter Essentials",
-    description: "Stay warm and stylish with our curated winter collection featuring premium coats and layers.",
-    slug: "winter-essentials",
+    name: "Unisex",
+    slug: "unisex",
     image: "/luxury-designer-coats-hanging.jpg",
   },
   {
-    name: "Business Formal",
-    description: "Make a statement in the boardroom with our professional blazers and tailored pieces.",
-    slug: "business-formal",
+    name: "Tess",
+    slug: "tess",
     image: "/premium-blazers-collection.jpg",
   },
   {
-    name: "Minimalist Basics",
-    description: "Timeless pieces that form the foundation of any modern wardrobe.",
-    slug: "minimalist-basics",
+    name: "Hoodies",
+    slug: "hoodies",
+    image: "/black-premium-sweatshirt.jpg",
+  },
+  {
+    name: "Sweetshirt",
+    slug: "sweetshirt",
     image: "/minimalist-white-shirts.jpg",
   },
 ]
 
-export default async function CollectionsPage() {
-  const user = await getCurrentUser()
-
+export default function CollectionsPage() {
   return (
-    <div className="min-h-screen bg-white">
-      <Header user={user} />
-
-      <main className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
-        <div className="mb-16 text-center">
-          <h1 className="mb-4 font-serif text-5xl font-bold text-black md:text-6xl">Our Collections</h1>
-          <p className="mx-auto max-w-2xl text-lg text-gray-600">
-            Discover carefully curated collections that define modern fashion
-          </p>
+    <div className="min-h-screen bg-background">
+      <main>
+        {/* Desktop: Asymmetric 2-column grid */}
+        <div className="hidden md:block">
+          <div className="grid grid-cols-2">
+            {collections.map((collection, index) => (
+              <motion.div
+                key={collection.slug}
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                transition={{ duration: 1.2, delay: index * 0.15, ease: [0.22, 1, 0.36, 1] }}
+                viewport={{ once: true, margin: "-100px" }}
+                className="relative h-screen"
+              >
+                <Link href={`/shop/${collection.slug}`} className="group block h-full w-full">
+                  <div className="relative h-full w-full overflow-hidden">
+                    <Image
+                      src={collection.image || `/placeholder.svg?height=1200&width=800&query=${collection.name} luxury editorial fashion winter`}
+                      alt={collection.name}
+                      fill
+                      sizes="50vw"
+                      priority={index < 2}
+                      className="object-cover transition-all duration-[2000ms] ease-out group-hover:scale-[1.03]"
+                    />
+                    {/* Subtle overlay for text readability */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                    
+                    {/* Collection title overlay */}
+                    <div className="absolute bottom-0 left-0 right-0 p-12 md:p-16 lg:p-20">
+                      <motion.h3
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 1, delay: index * 0.15 + 0.3, ease: [0.22, 1, 0.36, 1] }}
+                        viewport={{ once: true }}
+                        className="editorial-display text-[4rem] md:text-[5rem] lg:text-[6rem] text-white mb-4"
+                      >
+                        {collection.name}
+                      </motion.h3>
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        whileInView={{ opacity: 1 }}
+                        transition={{ duration: 0.8, delay: index * 0.15 + 0.5, ease: [0.22, 1, 0.36, 1] }}
+                        viewport={{ once: true }}
+                        className="flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-1000"
+                      >
+                        <span className="editorial-subheading text-white/80">Explore</span>
+                        <span className="text-white/60">→</span>
+                      </motion.div>
+                    </div>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
         </div>
 
-        <div className="grid gap-8 md:grid-cols-2">
+        {/* Mobile: One collection per screen */}
+        <div className="block md:hidden">
           {collections.map((collection, index) => (
-            <Link key={collection.slug} href={`/shop`} className="group">
-              <div className="neumorphic overflow-hidden rounded-3xl transition-all duration-300 hover:scale-105">
-                <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
-                  <img
-                    src={collection.image || "/placeholder.svg"}
+            <motion.div
+              key={collection.slug}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ duration: 1.2, delay: index * 0.1, ease: [0.22, 1, 0.36, 1] }}
+              viewport={{ once: true, margin: "-50px" }}
+              className="relative h-screen"
+            >
+              <Link href={`/shop/${collection.slug}`} className="group block h-full w-full">
+                <div className="relative h-full w-full overflow-hidden">
+                  <Image
+                    src={collection.image || `/placeholder.svg?height=1200&width=800&query=${collection.name} luxury editorial fashion winter`}
                     alt={collection.name}
-                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    fill
+                    sizes="100vw"
+                    priority={index === 0}
+                    className="object-cover transition-all duration-[2000ms] ease-out group-hover:scale-[1.02]"
                   />
+                  {/* Subtle overlay for text readability */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+                  
+                  {/* Collection title overlay */}
+                  <div className="absolute bottom-0 left-0 right-0 p-8">
+                    <motion.h3
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 1, delay: index * 0.1 + 0.3, ease: [0.22, 1, 0.36, 1] }}
+                      viewport={{ once: true }}
+                      className="editorial-display text-[3.5rem] text-white mb-3"
+                    >
+                      {collection.name}
+                    </motion.h3>
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      whileInView={{ opacity: 1 }}
+                      transition={{ duration: 0.8, delay: index * 0.1 + 0.5, ease: [0.22, 1, 0.36, 1] }}
+                      viewport={{ once: true }}
+                      className="flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-1000"
+                    >
+                      <span className="editorial-subheading text-white/80 text-xs">Explore</span>
+                      <span className="text-white/60">→</span>
+                    </motion.div>
+                  </div>
                 </div>
-                <div className="p-8">
-                  <h3 className="mb-2 font-serif text-3xl font-bold text-black">{collection.name}</h3>
-                  <p className="leading-relaxed text-gray-600">{collection.description}</p>
-                </div>
-              </div>
-            </Link>
+              </Link>
+            </motion.div>
           ))}
         </div>
       </main>
-
-      <Footer />
     </div>
   )
 }
