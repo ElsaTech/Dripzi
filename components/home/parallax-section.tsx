@@ -39,9 +39,9 @@ export function ParallaxSection() {
           <motion.p
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.9 }}
+            transition={{ delay: 0.4, duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
             viewport={{ once: true }}
-            className="editorial-body text-lg md:text-xl text-white/70 max-w-2xl mx-auto"
+            className="editorial-body text-lg md:text-xl text-white/60 max-w-2xl mx-auto"
           >
             Crafted for those who demand excellence in every detail
           </motion.p>

@@ -47,7 +47,7 @@ export function Header({ user: initialUser }: HeaderProps) {
 
   const { scrollY } = useScroll()
 
-  const headerBg = useTransform(scrollY, [0, 150], ["rgba(247, 246, 243, 0)", "rgba(247, 246, 243, 0.95)"])
+  const headerBg = useTransform(scrollY, [0, 150], ["rgba(250, 249, 246, 0)", "rgba(250, 249, 246, 0.95)"])
   const borderOpacity = useTransform(scrollY, [0, 150], [0, 0.15])
 
   useEffect(() => {
