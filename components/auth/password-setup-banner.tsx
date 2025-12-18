@@ -282,5 +282,3 @@ export function PasswordSetupBanner() {
     </div>
   )
 }
-
-

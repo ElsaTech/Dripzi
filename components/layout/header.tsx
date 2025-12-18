@@ -47,11 +47,14 @@ export function Header({ user: initialUser }: HeaderProps) {
 
   const { scrollY } = useScroll()
 
-  const headerBg = useTransform(scrollY, [0, 150], ["rgba(250, 249, 246, 0)", "rgba(250, 249, 246, 0.95)"])
-  const borderOpacity = useTransform(scrollY, [0, 150], [0, 0.15])
+  const headerBg = useTransform(
+    scrollY,
+    [0, 150],
+    [isHome ? "rgba(0, 0, 0, 0.25)" : "rgba(250, 249, 246, 0.95)", "rgba(250, 249, 246, 0.98)"],
+  )
+  const borderOpacity = useTransform(scrollY, [0, 150], [0, 0.1])
 
   useEffect(() => {
-    // Keep a simple scroll listener to decide when we're past the hero region on home.
     const handleScroll = () => {
       if (!isHome) return
       setIsAtTop(window.scrollY < 80)
@@ -71,38 +74,26 @@ export function Header({ user: initialUser }: HeaderProps) {
   const [isSigningOut, setIsSigningOut] = useState(false)
 
   const handleLogout = async () => {
-    // Prevent double execution - idempotent sign-out
     if (isSigningOut) {
       return
     }
 
     setIsSigningOut(true)
-    
+
     try {
-      // Clerk sign-out - this is the critical operation
-      // Even if backend APIs fail, we must complete sign-out
       await signOut()
-      
-      // Always redirect and refresh, regardless of any backend failures
-      // Sign-out must NEVER get stuck
       router.push("/")
       router.refresh()
     } catch (error) {
-      // Log error but ALWAYS complete sign-out flow
       console.error("Sign out error:", error)
-      
-      // Even on error, complete the sign-out flow
-      // User should be signed out from Clerk even if backend fails
+
       try {
         router.push("/")
         router.refresh()
       } catch (routerError) {
-        // If router fails, force page reload as last resort
         window.location.href = "/"
       }
     } finally {
-      // Always reset state after a timeout to prevent permanent stuck state
-      // This is a safety net in case navigation doesn't happen
       setTimeout(() => {
         setIsSigningOut(false)
       }, 3000)
@@ -115,66 +106,72 @@ export function Header({ user: initialUser }: HeaderProps) {
         style={{
           backgroundColor: headerBg,
         }}
-        className={`fixed left-0 right-0 top-0 z-40 transition-all duration-700 ${
-          isHome ? "backdrop-blur-md" : ""
+        className={`fixed left-0 right-0 top-0 z-50 transition-all duration-500 ${
+          isHome ? "backdrop-blur-xl supports-[backdrop-filter]:bg-black/20" : "backdrop-blur-sm"
         }`}
       >
-        {/* Subtle overlay on home hero to preserve readability without breaking the image */}
         {isHome && isAtTop && (
-          <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-black/60 via-black/40 to-transparent" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-transparent" />
         )}
+
         <motion.div
           style={{ opacity: borderOpacity }}
-          className="absolute bottom-0 left-0 right-0 h-px bg-foreground"
+          className="absolute bottom-0 left-0 right-0 h-px bg-foreground/30"
         />
 
-        <div className="mx-auto max-w-7xl px-6 md:px-12">
-          <div className="flex h-14 md:h-16 items-center justify-between">
-            {/* Logo */}
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex h-16 md:h-20 items-center justify-between gap-4">
             <Link
               href="/"
-              className="relative h-9 w-24 md:h-10 md:w-28 transition-opacity duration-700 hover:opacity-70"
+              className="relative h-8 w-24 sm:h-9 sm:w-28 md:h-10 md:w-32 flex-shrink-0 transition-opacity duration-500 hover:opacity-70 z-10"
             >
-              <Image src="/images/image.png" alt="Dripzi Store" fill className="object-contain" />
+              <Image
+                src={isAtTop && isHome ? "/images/image.png" : "/images/image_logo.png" || "/placeholder.svg"}
+                alt="Dripzi Store"
+                fill
+                className="object-contain"
+                priority
+              />
             </Link>
 
-            <nav className="hidden items-center gap-12 md:flex">
+            <nav className="hidden lg:flex items-center gap-8 xl:gap-10 flex-1 justify-center">
               <Link
                 href="/shop"
-                className={`luxury-subheading transition-all duration-700 relative group ${primaryNavColor}`}
+                className={`luxury-subheading transition-all duration-500 relative group whitespace-nowrap text-sm tracking-wider ${primaryNavColor}`}
               >
                 Shop
-                <span className="absolute -bottom-1 left-0 w-0 h-px bg-foreground transition-all duration-700 group-hover:w-full" />
+                <span className="absolute -bottom-1 left-0 w-0 h-px bg-current transition-all duration-500 group-hover:w-full" />
               </Link>
               <Link
                 href="/collections"
-                className={`luxury-subheading transition-all duration-700 relative group ${primaryNavColor}`}
+                className={`luxury-subheading transition-all duration-500 relative group whitespace-nowrap text-sm tracking-wider ${primaryNavColor}`}
               >
                 Collections
-                <span className="absolute -bottom-1 left-0 w-0 h-px bg-foreground transition-all duration-700 group-hover:w-full" />
+                <span className="absolute -bottom-1 left-0 w-0 h-px bg-current transition-all duration-500 group-hover:w-full" />
               </Link>
               <Link
                 href="/about"
-                className={`luxury-subheading transition-all duration-700 relative group ${primaryNavColor}`}
+                className={`luxury-subheading transition-all duration-500 relative group whitespace-nowrap text-sm tracking-wider ${primaryNavColor}`}
               >
                 About
-                <span className="absolute -bottom-1 left-0 w-0 h-px bg-foreground transition-all duration-700 group-hover:w-full" />
+                <span className="absolute -bottom-1 left-0 w-0 h-px bg-current transition-all duration-500 group-hover:w-full" />
               </Link>
               <Link
                 href="/contact"
-                className={`luxury-subheading transition-all duration-700 relative group ${primaryNavColor}`}
+                className={`luxury-subheading transition-all duration-500 relative group whitespace-nowrap text-sm tracking-wider ${primaryNavColor}`}
               >
                 Contact
-                <span className="absolute -bottom-1 left-0 w-0 h-px bg-foreground transition-all duration-700 group-hover:w-full" />
+                <span className="absolute -bottom-1 left-0 w-0 h-px bg-current transition-all duration-500 group-hover:w-full" />
               </Link>
             </nav>
 
-            <div className="flex items-center gap-6 md:gap-8">
+            <div className="flex items-center gap-3 md:gap-4 flex-shrink-0 z-10">
+              {/* Cart icon - always visible */}
               <Link href="/cart">
                 <Button
                   variant="ghost"
                   size="icon"
-                  className={`touch-target rounded-full hover:bg-transparent hover:opacity-60 transition-opacity duration-700 ${
+                  className={`rounded-full hover:bg-transparent hover:opacity-60 transition-all duration-500 h-10 w-10 ${
                     isHome && isAtTop ? "text-white" : ""
                   }`}
                   aria-label="Shopping cart"
@@ -183,34 +180,33 @@ export function Header({ user: initialUser }: HeaderProps) {
                 </Button>
               </Link>
 
+              {/* User menu or sign in - desktop only */}
               {user ? (
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className={`touch-target rounded-full hover:bg-transparent hover:opacity-60 transition-opacity duration-700 ${
+                      className={`hidden lg:flex rounded-full hover:bg-transparent hover:opacity-60 transition-all duration-500 h-10 w-10 ${
                         isHome && isAtTop ? "text-white" : ""
                       }`}
                       aria-label="User menu"
                     >
                       {user.imageUrl ? (
-                        // Using next/image for better performance and layout stability
                         <Image
                           src={user.imageUrl || "/placeholder.svg"}
                           alt={user.fullName || "User"}
-                          width={32}
-                          height={32}
-                          className="h-8 w-8 rounded-full object-cover"
+                          width={36}
+                          height={36}
+                          className="h-9 w-9 rounded-full object-cover"
                         />
                       ) : (
                         <User className="h-5 w-5" />
                       )}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-80 p-6 bg-background border border-foreground/10">
+                  <PopoverContent className="w-80 p-6 bg-background border border-foreground/10 shadow-xl">
                     <div className="space-y-6">
-                      {/* User Header */}
                       <div className="border-b border-foreground/10 pb-4">
                         <h3 className="font-serif text-2xl text-foreground tracking-tight">
                           {user.fullName || "Account"}
@@ -218,7 +214,6 @@ export function Header({ user: initialUser }: HeaderProps) {
                         <p className="text-sm text-foreground/60 font-light mt-1">{user.email}</p>
                       </div>
 
-                      {/* User Info */}
                       <div className="space-y-4 text-sm">
                         {user.firstName && (
                           <div>
@@ -238,11 +233,10 @@ export function Header({ user: initialUser }: HeaderProps) {
                         </div>
                       </div>
 
-                      {/* Logout Button */}
                       <button
                         onClick={handleLogout}
                         disabled={isSigningOut}
-                        className="w-full border border-foreground/20 py-3 text-foreground text-sm uppercase tracking-widest transition-all duration-700 hover:bg-foreground hover:text-background disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        className="w-full border border-foreground/20 py-3 text-foreground text-sm uppercase tracking-widest transition-all duration-500 hover:bg-foreground hover:text-background disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                       >
                         <LogOut className="h-4 w-4" />
                         {isSigningOut ? "Signing out..." : "Sign out"}
@@ -253,15 +247,13 @@ export function Header({ user: initialUser }: HeaderProps) {
               ) : (
                 <button
                   onClick={openLogin}
-                  className={`hidden md:block luxury-subheading transition-all duration-700 relative group ${
-                    isHome && isAtTop
-                      ? "text-white hover:text-white/70"
-                      : "text-foreground hover:text-foreground/60"
+                  className={`hidden lg:block luxury-subheading transition-all duration-500 relative group whitespace-nowrap text-sm tracking-wider ${
+                    isHome && isAtTop ? "text-white hover:text-white/70" : "text-foreground hover:text-foreground/60"
                   }`}
                   aria-label="Sign in to your account"
                 >
                   Sign In
-                  <span className="absolute -bottom-1 left-0 w-0 h-px bg-foreground transition-all duration-700 group-hover:w-full" />
+                  <span className="absolute -bottom-1 left-0 w-0 h-px bg-current transition-all duration-500 group-hover:w-full" />
                 </button>
               )}
 
@@ -269,7 +261,7 @@ export function Header({ user: initialUser }: HeaderProps) {
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className={`touch-target rounded-full md:hidden hover:bg-transparent hover:opacity-60 transition-opacity duration-700 ${
+                className={`lg:hidden rounded-full hover:bg-transparent hover:opacity-60 transition-all duration-500 h-10 w-10 ${
                   isHome && isAtTop ? "text-white" : ""
                 }`}
                 aria-label={isMenuOpen ? "Close menu" : "Open menu"}
@@ -281,54 +273,75 @@ export function Header({ user: initialUser }: HeaderProps) {
           </div>
         </div>
 
-        {/* Mobile Menu */}
         {isMenuOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="border-t border-border/20 bg-background md:hidden"
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            className="border-t border-foreground/10 bg-background/98 backdrop-blur-xl lg:hidden shadow-lg"
           >
-            <nav className="flex flex-col space-y-2 px-6 py-8" role="navigation" aria-label="Mobile navigation">
-              <Link
-                href="/shop"
-                className="touch-target luxury-subheading text-foreground py-4 hover:text-foreground/60 transition-colors duration-700"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Shop
-              </Link>
-              <Link
-                href="/collections"
-                className="touch-target luxury-subheading text-foreground py-4 hover:text-foreground/60 transition-colors duration-700"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Collections
-              </Link>
-              <Link
-                href="/about"
-                className="touch-target luxury-subheading text-foreground py-4 hover:text-foreground/60 transition-colors duration-700"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                About
-              </Link>
-              <Link
-                href="/contact"
-                className="touch-target luxury-subheading text-foreground py-4 hover:text-foreground/60 transition-colors duration-700"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Contact
-              </Link>
+            <nav
+              className="flex flex-col space-y-1 px-4 sm:px-6 py-6 max-h-[calc(100vh-4rem)] overflow-y-auto"
+              role="navigation"
+              aria-label="Mobile navigation"
+            >
               {!user && (
                 <button
                   onClick={() => {
                     openLogin()
                     setIsMenuOpen(false)
                   }}
-                  className="touch-target luxury-subheading text-foreground text-left py-4 mt-4 border-t border-border/20 hover:text-foreground/60 transition-colors duration-700"
+                  className="luxury-subheading text-foreground text-left py-4 px-2 border-b border-foreground/10 hover:text-foreground/60 transition-colors duration-500"
                   aria-label="Sign in to your account"
                 >
                   Sign In
+                </button>
+              )}
+              {user && (
+                <div className="py-4 px-2 border-b border-foreground/10">
+                  <p className="text-xs uppercase tracking-widest text-foreground/50 mb-2">Signed in as</p>
+                  <p className="text-sm text-foreground font-light">{user.email}</p>
+                </div>
+              )}
+              <Link
+                href="/shop"
+                className="luxury-subheading text-foreground py-4 px-2 hover:text-foreground/60 transition-colors duration-500"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Shop
+              </Link>
+              <Link
+                href="/collections"
+                className="luxury-subheading text-foreground py-4 px-2 hover:text-foreground/60 transition-colors duration-500"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Collections
+              </Link>
+              <Link
+                href="/about"
+                className="luxury-subheading text-foreground py-4 px-2 hover:text-foreground/60 transition-colors duration-500"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                About
+              </Link>
+              <Link
+                href="/contact"
+                className="luxury-subheading text-foreground py-4 px-2 hover:text-foreground/60 transition-colors duration-500"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Contact
+              </Link>
+              {user && (
+                <button
+                  onClick={() => {
+                    handleLogout()
+                    setIsMenuOpen(false)
+                  }}
+                  disabled={isSigningOut}
+                  className="luxury-subheading text-foreground text-left py-4 px-2 mt-2 border-t border-foreground/10 hover:text-foreground/60 transition-colors duration-500 disabled:opacity-50"
+                >
+                  {isSigningOut ? "Signing out..." : "Sign Out"}
                 </button>
               )}
             </nav>
