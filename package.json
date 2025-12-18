@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@aws-sdk/credential-providers": "latest",
+    "@babel/core": "latest",
     "@clerk/nextjs": "^6.14.7",
     "@emotion/is-prop-valid": "latest",
     "@expo/dom-webview": "latest",
