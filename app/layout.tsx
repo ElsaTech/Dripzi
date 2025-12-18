@@ -41,12 +41,24 @@ const satoshi = localFont({
 
 export const metadata: Metadata = {
   title: {
-    default: "Dripzi Store — Contemporary Fashion",
-    template: "%s — Dripzi Store",
+    default: "Dripzi Store – Premium Streetwear & Luxury Fashion Essentials",
+    template: "%s | Dripzi Store",
   },
   description:
-    "Contemporary fashion for the discerning individual. Explore curated collections that define modern luxury.",
-  keywords: ["luxury fashion", "contemporary clothing", "editorial fashion", "designer apparel", "curated collections"],
+    "Dripzi Store offers premium streetwear, oversized silhouettes, and modern fashion for men, women, and unisex collections. Shop designer coats, blazers, shirts, and sweatshirts with free shipping.",
+  keywords: [
+    "premium streetwear",
+    "luxury fashion",
+    "oversized clothing",
+    "designer coats",
+    "blazers",
+    "modern fashion",
+    "unisex fashion",
+    "men's streetwear",
+    "women's streetwear",
+    "contemporary clothing",
+    "fashion essentials",
+  ],
   authors: [{ name: "Dripzi Store" }],
   creator: "Dripzi Store",
   publisher: "Dripzi Store",
@@ -62,9 +74,9 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: "Dripzi Store — Contemporary Fashion",
+    title: "Dripzi Store – Premium Streetwear & Luxury Fashion Essentials",
     description:
-      "Contemporary fashion for the discerning individual. Explore curated collections that define modern luxury.",
+      "Discover premium streetwear and luxury fashion essentials. Shop oversized, regular, and designed collections for men, women, and unisex styles.",
     url: "https://dripzi.store",
     siteName: "Dripzi Store",
     images: [
@@ -72,7 +84,7 @@ export const metadata: Metadata = {
         url: "/images/image.png",
         width: 1200,
         height: 630,
-        alt: "Dripzi Store — Contemporary Fashion Collection",
+        alt: "Dripzi Store – Premium streetwear collection featuring oversized silhouettes and luxury fashion essentials",
         type: "image/png",
       },
     ],
@@ -81,9 +93,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Dripzi Store — Contemporary Fashion",
+    title: "Dripzi Store – Premium Streetwear & Luxury Fashion",
     description:
-      "Contemporary fashion for the discerning individual. Explore curated collections that define modern luxury.",
+      "Shop premium streetwear and luxury fashion. Oversized, regular, and designed collections for modern style.",
     images: ["/images/image.png"],
     creator: "@dripzistore",
     site: "@dripzistore",
@@ -107,10 +119,7 @@ export const metadata: Metadata = {
     yahoo: "your-yahoo-verification-code",
   },
   icons: {
-    icon: [
-      // Use the main brand image as the site icon
-      { url: "/images/image.png", sizes: "32x32", type: "image/png" },
-    ],
+    icon: [{ url: "/images/image.png", sizes: "32x32", type: "image/png" }],
     apple: [{ url: "/images/image.png", sizes: "180x180", type: "image/png" }],
     shortcut: "/images/image.png",
   },
@@ -159,14 +168,11 @@ export default async function RootLayout({
           <StructuredData type="organization" data={{}} />
           <AuthProvider>
             <Header user={initialUser} />
-            {/* Offset main content so it isn't hidden behind the fixed header */}
-            <div className="pt-14 md:pt-16">
+            <div className="pt-16 md:pt-20">
               <PageTransition>{children}</PageTransition>
               <Footer />
             </div>
-            {/* Global discount popup overlay, shown once per session */}
             <DiscountPopup />
-            {/* Gentle prompt for OAuth-only users to add a password for future email sign-in */}
             <PasswordSetupBanner />
           </AuthProvider>
           <Analytics />

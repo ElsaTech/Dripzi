@@ -3,27 +3,27 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Luxury color palette - off-white/ivory background, warm black/charcoal text, muted neutral accents */
+/* Luxury color palette - warm ivory background, rich blacks, subtle earth accents */
 :root {
   --background: #faf9f6;
-  --foreground: #1c1c1c;
-  --card: #fefefc;
-  --card-foreground: #1c1c1c;
-  --popover: #fefefc;
-  --popover-foreground: #1c1c1c;
-  --primary: #1c1c1c;
+  --foreground: #1a1a1a;
+  --card: #ffffff;
+  --card-foreground: #1a1a1a;
+  --popover: #ffffff;
+  --popover-foreground: #1a1a1a;
+  --primary: #1a1a1a;
   --primary-foreground: #faf9f6;
-  --secondary: #f5f4f1;
-  --secondary-foreground: #1c1c1c;
-  --muted: #eae9e4;
-  --muted-foreground: #6b6b6b;
-  --accent: #8b8b8b;
-  --accent-foreground: #1c1c1c;
-  --destructive: #991b1b;
+  --secondary: #f7f6f3;
+  --secondary-foreground: #1a1a1a;
+  --muted: #e8e7e3;
+  --muted-foreground: #71706b;
+  --accent: #9d9a91;
+  --accent-foreground: #1a1a1a;
+  --destructive: #8c1f1f;
   --destructive-foreground: #faf9f6;
-  --border: #e0dfda;
-  --input: #eae9e4;
-  --ring: #8b8b8b;
+  --border: #ddd dd9;
+  --input: #e8e7e3;
+  --ring: #9d9a91;
   --radius: 0px;
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
@@ -137,42 +137,59 @@
   }
 }
 
-/* Editorial typography - plain CSS classes without @utility or @layer */
+/* Added backdrop-filter support utilities for premium navbar effect */
+@supports (backdrop-filter: blur(20px)) or (-webkit-backdrop-filter: blur(20px)) {
+  .supports-backdrop-blur {
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+}
+
+/* Enhanced navbar stability - prevent layout shifts */
+.navbar-stable {
+  will-change: auto;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+}
+
+/* Editorial typography - refined hierarchy for luxury fashion */
 .editorial-display {
   font-family: var(--font-serif);
   font-weight: 300;
-  letter-spacing: -0.02em;
-  line-height: 0.88;
+  letter-spacing: -0.03em;
+  line-height: 0.9;
   text-wrap: balance;
 }
 
 .editorial-heading {
   font-family: var(--font-serif);
-  font-weight: 300;
-  letter-spacing: -0.01em;
-  line-height: 1.2;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
   text-wrap: balance;
 }
 
 .editorial-subheading {
   font-family: var(--font-sans);
-  font-weight: 300;
-  letter-spacing: 0.15em;
+  font-weight: 400;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  font-size: 0.7rem;
+  font-size: 0.65rem;
 }
 
 .editorial-body {
   font-family: var(--font-sans);
   font-weight: 300;
-  letter-spacing: 0.01em;
-  line-height: 1.75;
+  letter-spacing: 0.015em;
+  line-height: 1.8;
 }
 
 .luxury-subheading {
   font-family: var(--font-sans);
   font-weight: 400;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
   font-size: 0.7rem;
 }
@@ -180,15 +197,15 @@
 .luxury-body {
   font-family: var(--font-sans);
   font-weight: 300;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.015em;
   line-height: 1.75;
 }
 
-/* Luxury motion - slow, confident, expensive feel (600-900ms) */
+/* Luxury motion - slow, confident, expensive feel (800-1200ms) */
 @keyframes luxuryFadeIn {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(30px);
   }
   to {
     opacity: 1;
@@ -207,12 +224,27 @@
   }
 }
 
+@keyframes luxuryScale {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 .animate-luxury-fade {
-  animation: luxuryFadeIn 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: luxuryFadeIn 1.2s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
 .animate-luxury-reveal {
-  animation: luxuryReveal 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: luxuryReveal 1.4s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.animate-luxury-scale {
+  animation: luxuryScale 1.2s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
 :focus-visible {
@@ -224,23 +256,193 @@
   text-wrap: balance;
 }
 
-/* Touch targets for mobile luxury experience */
+/* Enhanced touch targets for mobile luxury experience with proper sizing */
 @media (hover: none) and (pointer: coarse) {
   button,
   .btn,
-  a {
+  a[role="button"] {
     min-height: 44px;
     min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Increase tap target without affecting visual size */
+  .touch-target {
+    position: relative;
+  }
+
+  .touch-target::before {
+    content: "";
+    position: absolute;
+    inset: -8px;
   }
 }
 
-/* Responsive editorial typography */
+/* Refined responsive typography for better mobile/tablet experience */
 @media (max-width: 640px) {
   .container {
     padding-left: 1.5rem;
     padding-right: 1.5rem;
   }
   .editorial-display {
-    font-size: clamp(3.5rem, 12vw, 10rem);
+    font-size: clamp(2.5rem, 10vw, 10rem);
+    line-height: 0.9;
+  }
+  .editorial-heading {
+    font-size: clamp(1.75rem, 6vw, 4rem);
+    line-height: 1.15;
+  }
+  .editorial-subheading {
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+  }
+
+  /* Prevent navbar layout shifts on mobile */
+  header {
+    position: fixed;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .editorial-display {
+    font-size: clamp(4rem, 8vw, 10rem);
+  }
+  .editorial-heading {
+    font-size: clamp(2.5rem, 5vw, 5rem);
+  }
+
+  /* Enhanced tablet navbar stability */
+  header {
+    position: fixed;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* Luxury grid system with proper responsive breakpoints */
+.luxury-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 2rem;
+}
+
+@media (max-width: 768px) {
+  .luxury-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .luxury-grid {
+    grid-template-columns: repeat(8, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+/* Image hover effects for product grids */
+.product-image-wrapper {
+  overflow: hidden;
+  position: relative;
+}
+
+.product-image {
+  transition: transform 2000ms cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.product-image-wrapper:hover .product-image {
+  transform: scale(1.05);
+}
+
+/* Additional utility for smooth navbar transitions */
+.transition-navbar {
+  transition-property: background-color, backdrop-filter, border-color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 500ms;
+}
+
+/* Prevent content jump when scrollbar appears/disappears */
+html {
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  scrollbar-gutter: stable;
+}
+
+body {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* Utility class for hiding scrollbars while maintaining scroll functionality */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Responsive container with proper max-widths */
+.responsive-container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .responsive-container {
+    max-width: 640px;
+  }
+}
+
+@media (min-width: 768px) {
+  .responsive-container {
+    max-width: 768px;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive-container {
+    max-width: 1024px;
+    padding-left: 3rem;
+    padding-right: 3rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .responsive-container {
+    max-width: 1280px;
+  }
+}
+
+@media (min-width: 1536px) {
+  .responsive-container {
+    max-width: 1536px;
+  }
+}
+
+/* Fix aspect ratios for images across devices */
+.aspect-portrait {
+  aspect-ratio: 3 / 4;
+}
+
+.aspect-landscape {
+  aspect-ratio: 16 / 9;
+}
+
+.aspect-square {
+  aspect-ratio: 1 / 1;
+}
+
+@media (max-width: 768px) {
+  .aspect-portrait {
+    aspect-ratio: 2 / 3;
   }
 }

@@ -1,33 +1,39 @@
-import { ProductCard } from "@/components/products/product-card"
-import { ProductFilters } from "@/components/products/product-filters"
+import { Suspense } from "react"
 import { getProducts } from "@/lib/actions/products"
+import { ShopPageClient } from "@/components/shop/shop-page-client"
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Shop Premium Streetwear & Luxury Fashion",
+  description:
+    "Explore our complete collection of premium fashion pieces. Shop designer coats, blazers, shirts, and sweatshirts. Browse oversized, regular, and designed collections for men, women, and unisex styles at Dripzi Store.",
+  keywords: [
+    "shop streetwear",
+    "luxury fashion shop",
+    "designer clothing",
+    "premium coats",
+    "designer blazers",
+    "fashion shopping",
+  ],
+  openGraph: {
+    title: "Shop Premium Streetwear & Luxury Fashion | Dripzi Store",
+    description:
+      "Explore our complete collection of premium fashion pieces. Designer coats, blazers, shirts, and sweatshirts.",
+    type: "website",
+  },
+  alternates: {
+    canonical: "https://dripzi.store/shop",
+  },
+}
 
 export default async function ShopPage() {
   const products = await getProducts()
 
   return (
-    <div className="min-h-screen bg-white pt-10 md:pt-14">
-
-      <main className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
-        <div className="mb-12">
-          <h1 className="mb-4 font-serif text-5xl font-bold text-black md:text-6xl">Shop All</h1>
-          <p className="text-lg text-gray-600">Discover our complete collection of premium fashion pieces</p>
-        </div>
-
-        <ProductFilters />
-
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {products.map((product: any) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
-
-        {products.length === 0 && (
-          <div className="py-20 text-center">
-            <p className="text-xl text-gray-600">No products found. Check back soon!</p>
-          </div>
-        )}
-      </main>
+    <div className="min-h-screen bg-background">
+      <Suspense fallback={<div className="min-h-screen" />}>
+        <ShopPageClient initialProducts={products} />
+      </Suspense>
     </div>
   )
 }
